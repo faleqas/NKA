@@ -28,6 +28,8 @@ struct C_State
                          //used for advancing from READY_JUMP to JUMP for example
     int next_state; //the next state mentioned above
 
+    int dir_x;
+
     void (*state_update)(struct C_State*, const struct Game*);
 };
 

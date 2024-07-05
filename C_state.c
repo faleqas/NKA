@@ -39,11 +39,19 @@ void player_state_update(struct C_State* c, const struct Game* game)
         c->state |= STATE_PLAYER_MOVE;
         c->state &= ~STATE_PLAYER_IDLE;
         m->dir_x = 1;
+        if (!(c->state & STATE_ATTACKING_MELEE)) {
+            //can't change attack dir by moving
+            c->dir_x = 1;
+        }
     }
     else if (keys[SDL_SCANCODE_A]) {
         c->state |= STATE_PLAYER_MOVE;
         c->state &= ~STATE_PLAYER_IDLE;
         m->dir_x = -1;
+        if (!(c->state & STATE_ATTACKING_MELEE)) {
+            //can't change attack dir by moving
+            c->dir_x = -1;
+        }
     }
     else {
         c->state &= ~STATE_PLAYER_MOVE;
@@ -95,16 +103,16 @@ void player_state_update(struct C_State* c, const struct Game* game)
         }
     }
 
-    if (game->keys_just_released[SDL_SCANCODE_RIGHT]) {
+    if (game->keys_just_pressed[SDL_SCANCODE_RIGHT]) {
         if (!(c->state & STATE_ATTACKING_MELEE)) {
-            m->dir_x = 1;
+            c->dir_x = 1;
             c->state |= STATE_ATTACKING_MELEE_DAMAGE;
             c->state |= STATE_ATTACKING_MELEE;
         }
     }
-    else if (game->keys_just_released[SDL_SCANCODE_LEFT]) {
+    else if (game->keys_just_pressed[SDL_SCANCODE_LEFT]) {
         if (!(c->state & STATE_ATTACKING_MELEE)) {
-            m->dir_x = -1;
+            c->dir_x = -1;
             c->state |= STATE_ATTACKING_MELEE_DAMAGE;
             c->state |= STATE_ATTACKING_MELEE;
         }

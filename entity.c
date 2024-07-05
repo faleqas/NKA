@@ -81,6 +81,7 @@ int E_Player_create(struct Game* game, float x, float y)
     s->state_update = &player_state_update;
     s->state_countdown = 0;
     s->next_state = STATE_NONE;
+    s->dir_x = 1;
 
     struct C_Melee* mattack = game->melees + id;
     mattack->entity_id = id;

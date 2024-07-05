@@ -35,12 +35,12 @@ void C_Draw_update(struct C_Draw* c, const struct Game* game)
     };
     
     //get the flip
-    const struct C_Movement* m = game->movements + c->entity_id;
-    if (m->entity_id != c->entity_id) {
+    const struct C_State* s = game->states + c->entity_id;
+    if (s->entity_id != c->entity_id) {
         //use flip assigned at creation
     }
     else {
-        if (m->dir_x == 1) {
+        if (s->dir_x == 1) {
             c->flip = SDL_FLIP_NONE;
         }
         else {
@@ -113,7 +113,6 @@ void player_sprite_update(struct C_Draw* c, const struct Game* game)
 
     if (c->prev_anim_id != anim) {
         C_Draw_reset_animation(c, game);
-        printf("animation changed\n");
     }
 
     struct C_Animation* anim_p = AssetManager_get_animation(game->asset_m, anim);
