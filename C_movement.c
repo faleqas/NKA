@@ -2,6 +2,7 @@
 #include "C_transform.h"
 #include "game.h"
 #include <util.h>
+#include <stdio.h>
 
 static void C_Movement_halt_to_stop(struct C_Movement* c, struct Game* game, float decel_factor);
 //static void player_movement_update(struct C_Movement* c, struct Game* game);
@@ -18,7 +19,7 @@ void C_Movement_update(struct C_Movement* c, struct Game* game)
     {
         case MOVETYPE_PLAYER:
         {
-            const struct C_State* state = game->states + c->entity_id;
+            struct C_State* state = game->states + c->entity_id;
             if (state->entity_id != c->entity_id) {
                 //player must have a state component
                 util_assert(false, "Player must have a C_State component\n");
@@ -49,10 +50,11 @@ void C_Movement_update(struct C_Movement* c, struct Game* game)
                     C_Movement_halt_to_stop(c, game, 1.0f);
                 }
                 else if (state->state & STATE_PLAYER_AIR) {
-                    C_Movement_halt_to_stop(c, game, 0.3f); //slow down a bit in the air but don't completely stop moving
+                    C_Movement_halt_to_stop(c, game, 0.06f); //slow down a bit in the air but don't completely stop moving
+                    state->state &= ~STATE_PLAYER_MOVE;
+                    printf("%f\n", c->velocity_x);
                 }
             }
-
             if (state->state & STATE_PLAYER_MOVE) {
                 if (c->dir_x == 1) {
                     c->velocity_x += c->accel * c->dir_x;
