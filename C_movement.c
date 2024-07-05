@@ -3,6 +3,9 @@
 #include "game.h"
 #include <util.h>
 
+static void C_Movement_halt_to_stop(struct C_Movement* c, struct Game* game, float decel_factor);
+//static void player_movement_update(struct C_Movement* c, struct Game* game);
+
 void C_Movement_update(struct C_Movement* c, struct Game* game)
 {
     struct C_Transform* t = game->transforms + c->entity_id;
@@ -41,6 +44,15 @@ void C_Movement_update(struct C_Movement* c, struct Game* game)
                 c->on_ground = false;
             }
 
+            if (state->state & STATE_ATTACKING_MELEE) {
+                if (state->dir_x != c->dir_x) {
+                    C_Movement_halt_to_stop(c, game, 1.0f);
+                }
+                else if (state->state & STATE_PLAYER_AIR) {
+                    C_Movement_halt_to_stop(c, game, 0.3f); //slow down a bit in the air but don't completely stop moving
+                }
+            }
+
             if (state->state & STATE_PLAYER_MOVE) {
                 if (c->dir_x == 1) {
                     c->velocity_x += c->accel * c->dir_x;
@@ -58,18 +70,7 @@ void C_Movement_update(struct C_Movement* c, struct Game* game)
                 }
             }
             else if (state->state & STATE_PLAYER_IDLE) {
-                if (c->velocity_x > 0) {
-                    c->velocity_x -= c->decel;
-                    if (c->velocity_x < 0) {
-                        c->velocity_x = 0;
-                    }
-                }
-                else if (c->velocity_x < 0) {
-                    c->velocity_x += c->decel;
-                    if (c->velocity_x > 0) {
-                        c->velocity_x = 0;
-                    }
-                }
+                C_Movement_halt_to_stop(c, game, 1);
             }
 
             t->x += c->velocity_x;
@@ -97,5 +98,22 @@ void C_Movement_update(struct C_Movement* c, struct Game* game)
         } break;
         
         default: break;
+    }
+}
+
+
+static void C_Movement_halt_to_stop(struct C_Movement* c, struct Game* game, float decel_factor)
+{
+    if (c->velocity_x > 0) {
+        c->velocity_x -= c->decel * decel_factor;
+        if (c->velocity_x < 0) {
+            c->velocity_x = 0;
+        }
+    }
+    else if (c->velocity_x < 0) {
+        c->velocity_x += c->decel * decel_factor;
+        if (c->velocity_x > 0) {
+            c->velocity_x = 0;
+        }
     }
 }
