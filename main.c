@@ -238,6 +238,13 @@ static void main_loop(struct Game* game)
     AssetManager_load_sprite(game->asset_m, game, "assets/sprites/world1/individual/dirt0.png",
                              SPRITE_DIRT, NULL);
     
+    struct A_Sprite* s_background = NULL;
+    {
+        // int id = AssetManager_load_sprite(game->asset_m, game, "assets/sprites/bg.png",
+        //                      SPRITE_FOREST_BG, NULL);
+        // s_background = AssetManager_get_sprite(game->asset_m, SPRITE_FOREST_BG);
+    }
+    
     game->e_player_id = E_Player_create(game, 200, TILE_SIZE * 7);
     Camera_set_target(&(game->camera), game, game->e_player_id);
 
@@ -268,6 +275,13 @@ static void main_loop(struct Game* game)
             SDL_SetRenderDrawColor(game->renderer,
                                    60, 60, 60, 255);
             SDL_RenderClear(game->renderer);
+        }
+        if (s_background) {
+            SDL_Rect dst = {0, -120, SCREEN_WIDTH + 120, SCREEN_HEIGHT + 120};
+            SDL_RenderCopyEx(game->renderer, s_background->texture,
+                            &(s_background->src), &dst,
+                            0, NULL,
+                            SDL_FLIP_NONE);
         }
         
         if (handle_events(game)) {
@@ -306,8 +320,6 @@ static void main_loop(struct Game* game)
         }
         
         SDL_RenderPresent(game->renderer);
-
-        game->prev_keys = SDL_GetKeyboardState(NULL);
     }
 }
 
@@ -337,14 +349,12 @@ static int handle_events(struct Game* game)
                     } break;
                 }
                 
-                // if (game->prev_keys) {
-                //     uint8_t scancode = event.key.keysym.scancode;
+                if (event.key.repeat == 0) {
+                    uint8_t scancode = event.key.keysym.scancode;
+                    game->keys_just_pressed[scancode] = 1;
+                    printf("%d just pressed\n", scancode);
+                }
 
-                //     if (!(game->prev_keys[scancode])) {
-                //         printf("JUST PRESSED A KEY\n");
-                //     }
-                //     printf("%d is %d\n", scancode, game->prev_keys[scancode]);
-                // }
             } break;
 
             case SDL_KEYUP:
@@ -405,7 +415,6 @@ static struct Game* create_game()
 
     game->keys_just_pressed = calloc(game->key_count, sizeof(uint8_t));
     game->keys_just_released = calloc(game->key_count, sizeof(uint8_t));
-    game->prev_keys = NULL;
     
     return game;
 }

@@ -32,7 +32,7 @@ struct Game
     int key_count;
     uint8_t* keys_just_pressed;
     uint8_t* keys_just_released;
-    uint8_t* prev_keys; //key state from the previous frame
+    //uint8_t* prev_keys; //key state from the previous frame
     
     //managers
     struct AssetManager* asset_m;
