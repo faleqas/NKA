@@ -10,5 +10,23 @@
 #include "C_draw.h"
 #include "C_state.h"
 #include "C_melee_attack.h"
+#include "C_damage.h"
+
+
+enum
+{
+    COMPONENT_NONE,
+    COMPONENT_TRANSFORM = 1,
+    COMPONENT_MOVEMENT = 1 << 1,
+    COMPONENT_DRAW = 1 << 2,
+    COMPONENT_STATE = 1 << 3,
+    COMPONENT_MELEE_ATTACK = 1 << 4,
+    COMPONENT_DAMAGE = 1 << 5
+};
+
+
+//everytime a new component is added
+//create_game and Game_clear_entity must be synced
+
 
 #endif //COMPONENT_H

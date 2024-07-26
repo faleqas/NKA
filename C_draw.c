@@ -20,7 +20,7 @@ void C_Draw_update(struct C_Draw* c, const struct Game* game)
         //TODO(omar): maybe draw at a default position
         return;
     }
-
+    
     if (c->sprite_update) {
         c->sprite_update(c, game);
     }
@@ -59,11 +59,13 @@ void C_Draw_update(struct C_Draw* c, const struct Game* game)
         (int)(t->x - game->camera.x), (int)(t->y - game->camera.y),
         (int)t->w, (int)t->h
     };
-
+    
     if (game->draw_collisions) {
         SDL_SetRenderDrawColor(game->renderer, 255, 0, 0, 255);
         SDL_RenderDrawRect(game->renderer, &r);
     }
+    
+    c->tics_since_frame_change++;
 }
 
 
@@ -82,7 +84,7 @@ void player_sprite_update(struct C_Draw* c, const struct Game* game)
         util_assert(false, "Why does the player not have a movement component ?");
         return;
     }
-
+    
     int anim = 0;
     //printf("%f\n", move->velocity_y);
     //Actual logic
@@ -110,14 +112,26 @@ void player_sprite_update(struct C_Draw* c, const struct Game* game)
     else if (state->state & STATE_PLAYER_MOVE) {
         anim = ANIM_PLAYER_RUN;
     }
-
+    
     if (c->prev_anim_id != anim) {
         C_Draw_reset_animation(c, game);
     }
-
-    struct C_Animation* anim_p = AssetManager_get_animation(game->asset_m, anim);
+    
+    struct A_Animation* anim_p = AssetManager_get_animation(game->asset_m, anim);
+    
+    if (state->state & STATE_ATTACKING_MELEE) {
+        if (c->anim_index == 6) {
+            if (c->tics_since_frame_change == 1) {
+                //printf("%d\n", c->tics_since_frame_change);
+                //Queue_push(&(state->messages), MESSAGE_MATTACK_DAMAGE_FRAME);
+                Game_send_component_message(game, c->entity_id,
+                                            MESSAGE_MATTACK_DAMAGE_FRAME);
+            }
+        }
+    }
+    
     advance_animation(c, anim_p);
-
+    
     c->prev_anim_id = anim;
 }
 
@@ -133,7 +147,7 @@ static bool advance_animation(struct C_Draw* c, const struct A_Animation* anim)
     if (anim == NULL) {
         return false;
     }
-
+    
     if (c->anim_index >= anim->len) {
         if (anim->loop) {
             c->anim_index = 0;
@@ -142,16 +156,17 @@ static bool advance_animation(struct C_Draw* c, const struct A_Animation* anim)
             c->anim_index = anim->len-1;
         }
     }
-
+    
     c->sprite_id = anim->sprites[c->anim_index];
     int duration = anim->durations[c->anim_index];
     int elapsed = SDL_GetTicks() - c->last_change_tic;
-
+    
     if (elapsed >= duration) {
         c->anim_index++;
         c->last_change_tic = SDL_GetTicks();
+        c->tics_since_frame_change = 0;
         return true;
     }
-
+    
     return false;
 }

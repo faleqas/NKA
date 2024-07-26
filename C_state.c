@@ -1,6 +1,7 @@
 #include "C_state.h"
 #include "component.h"
 #include "game.h"
+#include "C_movement.h"
 #include <stdio.h>
 
 void C_State_update(struct C_State* c, const struct Game* game)
@@ -11,6 +12,36 @@ void C_State_update(struct C_State* c, const struct Game* game)
     }
 }
 
+
+void C_State_add_state(struct C_State* c, const int state)
+{
+    c->state |= state;
+}
+
+
+void C_State_remove_state(struct C_State* c, const int state)
+{
+    c->state &= ~state;
+}
+
+
+void C_State_set_state(struct C_State* c, const int state)
+{
+    c->state = state;
+}
+
+
+void C_State_go_to_next_state(struct C_State* c)
+{
+    if (!(c->next_state)) {
+        return;
+    }
+    
+    c->state = c->next_state;
+    c->next_state = STATE_NONE;
+}
+
+
 void player_state_start_attack(struct C_State* c, const struct Game* game)
 {
     c->state_countdown = 120;
@@ -19,106 +50,166 @@ void player_state_start_attack(struct C_State* c, const struct Game* game)
 
 void player_state_update(struct C_State* c, const struct Game* game)
 {
+    int msg = (int)Queue_pop(&(c->messages));
+    if (msg) {
+        switch (msg)
+        {
+            case MESSAGE_MATTACK_DAMAGE_FRAME:
+            {
+                C_State_add_state(c, STATE_ATTACKING_MELEE_DAMAGE);
+            } break;
+            
+            case MESSAGE_DIE:
+            {
+                Game_clear_entity(game, c->entity_id);
+            } break;
+            
+            default:
+            {
+                
+            } break;
+        }
+    }
+    
     //TODO(omar): this should be moved somewhere else. maybe not part of c->state but c->flags or something
     static bool space_released_in_jump = false;
-
-
+    
     const uint8_t* keys = SDL_GetKeyboardState(NULL);
-
+    
     struct C_Movement* m = game->movements + c->entity_id;
     if (m->entity_id != c->entity_id) {
         return;
     }
-
+    
     if (m->on_ground) {
-        c->state |= STATE_PLAYER_CAN_DOUBLE_JUMP;
+        C_State_add_state(c, STATE_PLAYER_CAN_DOUBLE_JUMP);
         space_released_in_jump = false;
     }
     
-    if (keys[SDL_SCANCODE_D]) {
-        c->state |= STATE_PLAYER_MOVE;
-        c->state &= ~STATE_PLAYER_IDLE;
-        m->dir_x = 1;
-        if (!(c->state & STATE_ATTACKING_MELEE)) {
-            //can't change attack dir by moving
-            c->dir_x = 1;
+    if (m->colliding_x) {
+        C_State_remove_state(c, STATE_PLAYER_CAN_DOUBLE_JUMP);
+        C_State_add_state(c, STATE_PLAYER_MOVE_WITH_INPUT);
+    }
+    
+    if (c->state & STATE_PLAYER_MOVE_WITH_INPUT) {
+        if (keys[SDL_SCANCODE_D]) {
+            C_State_add_state(c, STATE_PLAYER_MOVE);
+            C_State_remove_state(c, STATE_PLAYER_IDLE);
+            
+            m->dir_x = 1;
+            
+            if (!(c->state & STATE_ATTACKING_MELEE)) {
+                //can't change attack dir by moving
+                c->dir_x = 1;
+            }
+            
+        }
+        else if (keys[SDL_SCANCODE_A]) {
+            C_State_add_state(c, STATE_PLAYER_MOVE);
+            C_State_remove_state(c, STATE_PLAYER_IDLE);
+            
+            m->dir_x = -1;
+            
+            if (!(c->state & STATE_ATTACKING_MELEE)) {
+                //can't change attack dir by moving
+                c->dir_x = -1;
+            }
+        }
+        else {
+            C_State_remove_state(c, STATE_PLAYER_MOVE);
+            C_State_add_state(c, STATE_PLAYER_IDLE);
         }
     }
-    else if (keys[SDL_SCANCODE_A]) {
-        c->state |= STATE_PLAYER_MOVE;
-        c->state &= ~STATE_PLAYER_IDLE;
-        m->dir_x = -1;
-        if (!(c->state & STATE_ATTACKING_MELEE)) {
-            //can't change attack dir by moving
-            c->dir_x = -1;
-        }
-    }
-    else {
-        c->state &= ~STATE_PLAYER_MOVE;
-        c->state |= STATE_PLAYER_IDLE;
-    }
-
+    
     if (keys[SDL_SCANCODE_SPACE]) {
         if (m->on_ground) {
             if (!(c->state & STATE_PLAYER_READY_JUMP)) {
-                c->state |= STATE_PLAYER_READY_JUMP;
+                C_State_add_state(c, STATE_PLAYER_READY_JUMP);
                 c->state_countdown = 10;
             }
         }
         else if (c->state & STATE_PLAYER_CAN_DOUBLE_JUMP) {
-            if (m->velocity_y > (-PLAYER_JUMP_FORCE * 0.3f)) {
-                if (space_released_in_jump) {
-                    c->state |= STATE_PLAYER_DOUBLE_JUMP;
-                    c->state &= ~STATE_PLAYER_CAN_DOUBLE_JUMP;
+            if (true) {
+                if (m->velocity_y > (-PLAYER_JUMP_FORCE * 0.3f)) {
+                    if (space_released_in_jump) {
+                        C_State_add_state(c, STATE_PLAYER_DOUBLE_JUMP);
+                        C_State_remove_state(c, STATE_PLAYER_CAN_DOUBLE_JUMP);
+                        printf("double jumped %d\n", game->tics);
+                    }
                 }
             }
         }
+        
         else {
-            c->state &= ~STATE_PLAYER_JUMP;
-            c->state &= ~STATE_PLAYER_DOUBLE_JUMP;
+            C_State_remove_state(c, STATE_PLAYER_JUMP);
+            C_State_remove_state(c, STATE_PLAYER_DOUBLE_JUMP);
+        }
+        
+        if (m->on_wall) {
+            c->state_countdown = 10;
+            C_Movement_flip_dir(m);
+            m->velocity_x = m->max_speed * m->dir_x;
+            C_State_remove_state(c, STATE_PLAYER_MOVE_WITH_INPUT);
         }
     }
     if (m->velocity_y) {
-        c->state &= ~STATE_PLAYER_JUMP;
-        c->state |= STATE_PLAYER_AIR;
+        C_State_remove_state(c, STATE_PLAYER_JUMP);
+        C_State_add_state(c, STATE_PLAYER_AIR);
+        
         if (!(keys[SDL_SCANCODE_SPACE])) {
             space_released_in_jump = true;
         }
     }
     else {
-        c->state &= ~STATE_PLAYER_AIR;
+        C_State_remove_state(c, STATE_PLAYER_AIR);
     }
-
+    
     if (c->state_countdown) {
         c->state_countdown--;
     }
     else {
         if (c->state & STATE_PLAYER_READY_JUMP) {
-            c->state &= ~STATE_PLAYER_READY_JUMP;
-            c->state |= STATE_PLAYER_JUMP;
+            C_State_remove_state(c, STATE_PLAYER_READY_JUMP);
+            C_State_add_state(c, STATE_PLAYER_JUMP);
         }
         else if (c->next_state) {
-            c->state = c->next_state;
-            c->next_state = STATE_NONE;
+            C_State_go_to_next_state(c);
         }
     }
-
+    
     if (game->keys_just_pressed[SDL_SCANCODE_RIGHT]) {
         if (!(c->state & STATE_ATTACKING_MELEE)) {
             c->dir_x = 1;
-            c->state |= STATE_ATTACKING_MELEE_DAMAGE;
-            c->state |= STATE_ATTACKING_MELEE;
+            //C_State_add_state(c, STATE_ATTACKING_MELEE_DAMAGE);
+            C_State_add_state(c, STATE_ATTACKING_MELEE);
+            player_state_start_attack(c, game);
         }
     }
     else if (game->keys_just_pressed[SDL_SCANCODE_LEFT]) {
         if (!(c->state & STATE_ATTACKING_MELEE)) {
             c->dir_x = -1;
-            c->state |= STATE_ATTACKING_MELEE_DAMAGE;
-            c->state |= STATE_ATTACKING_MELEE;
+            //C_State_add_state(c, STATE_ATTACKING_MELEE_DAMAGE);
+            C_State_add_state(c, STATE_ATTACKING_MELEE);
+            player_state_start_attack(c, game);
         }
     }
+}
 
-    if (c->state & STATE_ATTACKING_MELEE_DAMAGE) {
-        player_state_start_attack(c, game);
+void dummy_state_update(struct C_State* c, const struct Game* game)
+{
+    int msg = (int)Queue_pop(&(c->messages));
+    if (msg) {
+        switch (msg)
+        {
+            case MESSAGE_DIE:
+            {
+                Game_clear_entity(game, c->entity_id);
+            } break;
+            
+            default:
+            {
+                
+            } break;
+        }
     }
 }

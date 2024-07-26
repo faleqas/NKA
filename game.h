@@ -18,16 +18,29 @@
 #define GRAVITY 0.02f
 #define MAX_GRAVITY 6.0f
 
+
+//Component messages
+enum
+{
+    MESSAGE_NONE,
+    MESSAGE_MATTACK_DAMAGE_FRAME, //this is the frame where u should do damage in the melee attack
+    
+    MESSAGE_DIE
+};
+
+
 struct Game
 {
+    int tics;
+    
     SDL_Window* window;
     SDL_Renderer* renderer;
-
+    
     struct Camera camera;
     
     int entity_count;
     int e_player_id;
-
+    
     //input stuff
     int key_count;
     uint8_t* keys_just_pressed;
@@ -43,8 +56,8 @@ struct Game
     struct C_Draw draws[ENTITY_MAX];
     struct C_State states[ENTITY_MAX];
     struct C_Melee melees[ENTITY_MAX];
-    //struct C_Draw* draws;
-
+    struct C_Damage damages[ENTITY_MAX];
+    
     //debug
     bool draw_collisions;
 };
@@ -52,7 +65,15 @@ struct Game
 //returns true if ENTITY_MAX has been reached
 bool Game_is_entities_full(const struct Game* game);
 
-bool Game_is_colliding(const struct Game* game,
-                       const struct C_Transform* t);
+struct C_Transform* Game_is_colliding(const struct Game* game,
+                                      const struct C_Transform* t);
+
+void Game_clear_entity(struct Game* game, int entity_id);
+
+//sends a message to all components of an entity
+void Game_send_component_message(struct Game* game,
+                                 int entity_id,
+                                 const int  msg
+                                 );
 
 #endif //GAME_H

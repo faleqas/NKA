@@ -14,24 +14,25 @@
 
 //https://rvros.itch.io/animated-pixel-hero?download
 
+
 const enum
 {
     SPRITE_NONE,
     
     SPRITE_FOREST_BG,
-
+    
     SPRITE_PLAYER_IDLE_00,
     SPRITE_PLAYER_IDLE_01,
     SPRITE_PLAYER_IDLE_02,
     SPRITE_PLAYER_IDLE_03,
-
+    
     SPRITE_PLAYER_RUN_00,
     SPRITE_PLAYER_RUN_01,
     SPRITE_PLAYER_RUN_02,
     SPRITE_PLAYER_RUN_03,
     SPRITE_PLAYER_RUN_04,
     SPRITE_PLAYER_RUN_05,
-
+    
     SPRITE_PLAYER_JUMP_0,
     SPRITE_PLAYER_JUMP_1,
     SPRITE_PLAYER_JUMP_2,
@@ -40,10 +41,10 @@ const enum
     SPRITE_PLAYER_JUMP_5,
     SPRITE_PLAYER_JUMP_6,
     SPRITE_PLAYER_JUMP_7,
-
+    
     SPRITE_PLAYER_FALLING_0,
     SPRITE_PLAYER_FALLING_1,
-
+    
     SPRITE_PLAYER_SWORD_ATTACK_0_0,
     SPRITE_PLAYER_SWORD_ATTACK_0_1,
     SPRITE_PLAYER_SWORD_ATTACK_0_2,
@@ -92,8 +93,8 @@ int AssetManager_load_sprite(struct AssetManager* m, const struct Game* game, co
 //src here is for the source rect of the sprite itself after its cut from the tilemap for extra options
 //since maybe you want to take a certain part of the sprite
 int AssetManager_load_sprite_from_tilemap(struct AssetManager* m, const struct Game* game, const char* path,
-                             int id, unsigned int tile_x, unsigned int tile_y,
-                             unsigned int tile_count_x, unsigned tile_count_y,
-                             const SDL_Rect* src);
+                                          int id, unsigned int tile_x, unsigned int tile_y,
+                                          unsigned int tile_count_x, unsigned tile_count_y,
+                                          const SDL_Rect* src);
 
 #endif //ASSET_MANAGER_H
