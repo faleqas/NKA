@@ -83,12 +83,14 @@ void player_state_update(struct C_State* c, const struct Game* game)
     
     if (m->on_ground) {
         C_State_add_state(c, STATE_PLAYER_CAN_DOUBLE_JUMP);
+        C_State_add_state(c, STATE_PLAYER_MOVE_WITH_INPUT);
         space_released_in_jump = false;
     }
     
-    if (m->colliding_x) {
+    if (m->on_wall) {
+        m->velocity_y = 0;
         C_State_remove_state(c, STATE_PLAYER_CAN_DOUBLE_JUMP);
-        C_State_add_state(c, STATE_PLAYER_MOVE_WITH_INPUT);
+        //C_State_add_state(c, STATE_PLAYER_MOVE_WITH_INPUT);
     }
     
     if (c->state & STATE_PLAYER_MOVE_WITH_INPUT) {
@@ -128,30 +130,35 @@ void player_state_update(struct C_State* c, const struct Game* game)
                 c->state_countdown = 10;
             }
         }
+        
         else if (c->state & STATE_PLAYER_CAN_DOUBLE_JUMP) {
-            if (true) {
-                if (m->velocity_y > (-PLAYER_JUMP_FORCE * 0.3f)) {
-                    if (space_released_in_jump) {
-                        C_State_add_state(c, STATE_PLAYER_DOUBLE_JUMP);
-                        C_State_remove_state(c, STATE_PLAYER_CAN_DOUBLE_JUMP);
-                        printf("double jumped %d\n", game->tics);
-                    }
+            if (m->velocity_y > (-PLAYER_JUMP_FORCE * 0.3f)) {
+                if (space_released_in_jump) {
+                    C_State_add_state(c, STATE_PLAYER_DOUBLE_JUMP);
+                    C_State_remove_state(c, STATE_PLAYER_CAN_DOUBLE_JUMP);
+                    printf("double jumped %d\n", game->tics);
                 }
             }
+        }
+        
+        else if (m->on_wall) {
+            m->velocity_x = 2.0f;
+            m->velocity_y = -PLAYER_JUMP_FORCE;
+            m->dir_x = 1;
+            c->next_state = c->state | STATE_PLAYER_CAN_DOUBLE_JUMP;
+            C_State_remove_state(c, STATE_PLAYER_MOVE_WITH_INPUT);
+            C_State_remove_state(c, STATE_PLAYER_IDLE);
+            C_State_remove_state(c, STATE_PLAYER_MOVE);
+            
+            c->state_countdown = 60;
         }
         
         else {
             C_State_remove_state(c, STATE_PLAYER_JUMP);
             C_State_remove_state(c, STATE_PLAYER_DOUBLE_JUMP);
         }
-        
-        if (m->on_wall) {
-            c->state_countdown = 10;
-            C_Movement_flip_dir(m);
-            m->velocity_x = m->max_speed * m->dir_x;
-            C_State_remove_state(c, STATE_PLAYER_MOVE_WITH_INPUT);
-        }
     }
+    
     if (m->velocity_y) {
         C_State_remove_state(c, STATE_PLAYER_JUMP);
         C_State_add_state(c, STATE_PLAYER_AIR);
