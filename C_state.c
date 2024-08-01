@@ -3,6 +3,7 @@
 #include "game.h"
 #include "C_movement.h"
 #include <stdio.h>
+#include "A_animation.h"
 
 void C_State_update(struct C_State* c, const struct Game* game)
 {
@@ -81,6 +82,11 @@ void player_state_update(struct C_State* c, const struct Game* game)
         return;
     }
     
+    struct C_Draw* d = game->movements + c->entity_id;
+    if (d->entity_id != c->entity_id) {
+        return;
+    }
+    
     if (m->on_ground) {
         C_State_add_state(c, STATE_PLAYER_CAN_DOUBLE_JUMP);
         C_State_add_state(c, STATE_PLAYER_MOVE_WITH_INPUT);
@@ -151,6 +157,8 @@ void player_state_update(struct C_State* c, const struct Game* game)
             C_State_remove_state(c, STATE_PLAYER_MOVE);
             
             c->state_countdown = 60;
+            
+            c->dir_x = 1;
         }
         
         else {
