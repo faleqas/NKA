@@ -47,9 +47,11 @@ void C_Movement_update(struct C_Movement* c, struct Game* game)
             }
             
             if (!(c->on_ground)) {
-                c->velocity_y += GRAVITY;
-                if (c->velocity_y > MAX_GRAVITY) {
-                    c->velocity_y = MAX_GRAVITY;
+                if (!(c->on_wall)) {
+                    c->velocity_y += GRAVITY;
+                    if (c->velocity_y > MAX_GRAVITY) {
+                        c->velocity_y = MAX_GRAVITY;
+                    }
                 }
             }
             else {
@@ -72,7 +74,6 @@ void C_Movement_update(struct C_Movement* c, struct Game* game)
                 else if (state->state & STATE_PLAYER_AIR) {
                     C_Movement_halt_to_stop(c, game, 0.06f); //slow down a bit in the air but don't completely stop moving
                     state->state &= ~STATE_PLAYER_MOVE;
-                    printf("%f\n", c->velocity_x);
                 }
             }
             if (state->state & STATE_PLAYER_MOVE) {

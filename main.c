@@ -64,6 +64,7 @@ static void main_loop(struct Game* game)
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_IDLE_0, SPRITE_PLAYER_IDLE_02, 150);
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_IDLE_0, SPRITE_PLAYER_IDLE_03, 150);
     }
+
     { //PLAYER RUN from (1,1) to (5,1)
         SDL_Rect rect = { //size of run sprites
             16, 6, //offset
@@ -97,6 +98,7 @@ static void main_loop(struct Game* game)
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_RUN, SPRITE_PLAYER_RUN_03, 120);
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_RUN, SPRITE_PLAYER_RUN_04, 120);
     }
+
     {
         SDL_Rect rect = { //size of jump sprites
             16, 6, //offset
@@ -150,6 +152,7 @@ static void main_loop(struct Game* game)
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_FIRST_JUMP, SPRITE_PLAYER_JUMP_2, 200);
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_FIRST_JUMP, SPRITE_PLAYER_JUMP_3, 200);
     }
+
     {
         SDL_Rect rect = { //size of falling sprites
             16, 6, //offset
@@ -169,6 +172,7 @@ static void main_loop(struct Game* game)
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_FALLING, SPRITE_PLAYER_FALLING_0, 200);
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_FALLING, SPRITE_PLAYER_FALLING_1, 200);
     }
+
     {
         SDL_Rect rect1 = { //size of idle sword sprites
             50 - 34 - 5, 0, //offset
@@ -234,6 +238,28 @@ static void main_loop(struct Game* game)
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_ATTACK_0, SPRITE_PLAYER_SWORD_ATTACK_0_6, 100);
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_ATTACK_0, SPRITE_PLAYER_SWORD_ATTACK_0_7, 80);
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_ATTACK_0, SPRITE_PLAYER_SWORD_ATTACK_0_8, 60);
+    }
+
+    //2 3
+    //11
+    {
+        SDL_Rect rect = { //size of wall slide sprites
+            14, 6, //offset
+            19, 31
+        };
+
+        AssetManager_load_sprite_from_tilemap(game->asset_m, game, "assets/sprites/adventurer/sheet_edit.png",
+            SPRITE_PLAYER_WALL_SLIDE_0,
+            2, 11,
+            7, 16, &rect);
+        AssetManager_load_sprite_from_tilemap(game->asset_m, game, "assets/sprites/adventurer/sheet_edit.png",
+            SPRITE_PLAYER_WALL_SLIDE_1,
+            3, 11,
+            7, 16, &rect);
+
+        AssetManager_create_animation(game->asset_m, ANIM_PLAYER_WALL_SLIDE, true);
+        AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_WALL_SLIDE, SPRITE_PLAYER_WALL_SLIDE_0, 200);
+        AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_WALL_SLIDE, SPRITE_PLAYER_WALL_SLIDE_1, 200);
     }
     
     AssetManager_load_sprite(game->asset_m, game, "assets/sprites/world1/individual/dirt0.png",

@@ -88,7 +88,10 @@ void player_sprite_update(struct C_Draw* c, const struct Game* game)
     int anim = 0;
     //printf("%f\n", move->velocity_y);
     //Actual logic
-    if (state->state & STATE_ATTACKING_MELEE) {
+    if (move->on_wall) {
+        anim = ANIM_PLAYER_WALL_SLIDE;
+    }
+    else if (state->state & STATE_ATTACKING_MELEE) {
         anim = ANIM_PLAYER_ATTACK_0;
     }
     else if (state->state & STATE_PLAYER_AIR) {
