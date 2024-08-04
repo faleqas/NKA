@@ -58,6 +58,9 @@ void player_state_update(struct C_State* c, const struct Game* game)
             case MESSAGE_MATTACK_DAMAGE_FRAME:
             {
                 C_State_add_state(c, STATE_ATTACKING_MELEE_DAMAGE);
+                if (game->keys_just_pressed[SDL_SCANCODE_RIGHT]) {
+                    printf("double attack\n");
+                }
             } break;
             
             case MESSAGE_DIE:
@@ -75,8 +78,6 @@ void player_state_update(struct C_State* c, const struct Game* game)
     //TODO(omar): this should be moved somewhere else. maybe not part of c->state but c->flags or something
     static bool space_released_in_jump = false;
     
-    const uint8_t* keys = SDL_GetKeyboardState(NULL);
-    
     struct C_Movement* m = game->movements + c->entity_id;
     if (m->entity_id != c->entity_id) {
         return;
@@ -87,6 +88,8 @@ void player_state_update(struct C_State* c, const struct Game* game)
         return;
     }
     
+    C_State_remove_state(c, STATE_PLAYER_DOUBLE_JUMP);
+
     if (m->on_ground) {
         C_State_add_state(c, STATE_PLAYER_CAN_DOUBLE_JUMP);
         C_State_add_state(c, STATE_PLAYER_MOVE_WITH_INPUT);
@@ -102,7 +105,7 @@ void player_state_update(struct C_State* c, const struct Game* game)
         C_State_remove_state(c, STATE_PLAYER_JUMP);
         C_State_add_state(c, STATE_PLAYER_AIR);
 
-        if (!(keys[SDL_SCANCODE_SPACE])) {
+        if (!(game->keys_held[SDL_SCANCODE_SPACE])) {
             space_released_in_jump = true;
         }
     }
@@ -111,7 +114,7 @@ void player_state_update(struct C_State* c, const struct Game* game)
     }
     
     if (c->state & STATE_PLAYER_MOVE_WITH_INPUT) {
-        if (keys[SDL_SCANCODE_D]) {
+        if (game->keys_held[SDL_SCANCODE_D]) {
             C_State_add_state(c, STATE_PLAYER_MOVE);
             C_State_remove_state(c, STATE_PLAYER_IDLE);
 
@@ -127,7 +130,7 @@ void player_state_update(struct C_State* c, const struct Game* game)
             }
             
         }
-        else if (keys[SDL_SCANCODE_A]) {
+        else if (game->keys_held[SDL_SCANCODE_A]) {
             C_State_add_state(c, STATE_PLAYER_MOVE);
             C_State_remove_state(c, STATE_PLAYER_IDLE);
             
@@ -148,7 +151,7 @@ void player_state_update(struct C_State* c, const struct Game* game)
         }
     }
     
-    if (keys[SDL_SCANCODE_SPACE]) {
+    if (game->keys_just_pressed[SDL_SCANCODE_SPACE]) {
         if (m->on_ground) {
             if (!(c->state & STATE_PLAYER_READY_JUMP)) {
                 C_State_add_state(c, STATE_PLAYER_READY_JUMP);
@@ -161,7 +164,6 @@ void player_state_update(struct C_State* c, const struct Game* game)
                 if (space_released_in_jump) {
                     C_State_add_state(c, STATE_PLAYER_DOUBLE_JUMP);
                     C_State_remove_state(c, STATE_PLAYER_CAN_DOUBLE_JUMP);
-                    printf("double jumped %d\n", game->tics);
                 }
             }
         }

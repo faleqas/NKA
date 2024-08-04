@@ -378,11 +378,13 @@ static int handle_events(struct Game* game)
                         game->draw_collisions = !(game->draw_collisions);
                     } break;
                 }
-                
+                uint8_t scancode = event.key.keysym.scancode;
+
+                game->keys_held[scancode] = 1;
+
                 if (event.key.repeat == 0) {
-                    uint8_t scancode = event.key.keysym.scancode;
                     game->keys_just_pressed[scancode] = 1;
-                    //printf("%d just pressed\n", scancode);
+                    printf("%d just pressed\n", scancode);
                 }
                 
             } break;
@@ -391,6 +393,7 @@ static int handle_events(struct Game* game)
             {
                 uint8_t scancode = event.key.keysym.scancode;
                 game->keys_just_released[scancode] = 1;
+                game->keys_held[scancode] = 0;
             } break;
         }
     };
@@ -446,6 +449,7 @@ static struct Game* create_game()
     
     game->keys_just_pressed = calloc(game->key_count, sizeof(uint8_t));
     game->keys_just_released = calloc(game->key_count, sizeof(uint8_t));
+    game->keys_held = calloc(game->key_count, sizeof(uint8_t));
     
     return game;
 }
