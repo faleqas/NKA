@@ -450,6 +450,14 @@ static struct Game* create_game()
     game->keys_just_pressed = calloc(game->key_count, sizeof(uint8_t));
     game->keys_just_released = calloc(game->key_count, sizeof(uint8_t));
     game->keys_held = calloc(game->key_count, sizeof(uint8_t));
+
+    game->message_memory_max = 64;
+    game->message_memory = malloc(sizeof(struct Message) * game->message_memory_max);
+
+    for (int i = 0; i < game->message_memory_max; i++)
+    {
+        game->message_memory[i].id = -1;
+    }
     
     return game;
 }

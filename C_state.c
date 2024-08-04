@@ -51,16 +51,18 @@ void player_state_start_attack(struct C_State* c, const struct Game* game)
 
 void player_state_update(struct C_State* c, const struct Game* game)
 {
-    int msg = (int)Queue_pop(&(c->messages));
+    struct Message* msg = Queue_pop(&(c->messages));
     if (msg) {
-        switch (msg)
+        switch (msg->id)
         {
             case MESSAGE_MATTACK_DAMAGE_FRAME:
             {
                 C_State_add_state(c, STATE_ATTACKING_MELEE_DAMAGE);
-                if (game->keys_just_pressed[SDL_SCANCODE_RIGHT]) {
-                    printf("double attack\n");
-                }
+            } break;
+
+            case MESSAGE_FRAME_ADVANCE:
+            {
+                
             } break;
             
             case MESSAGE_DIE:
@@ -73,6 +75,7 @@ void player_state_update(struct C_State* c, const struct Game* game)
                 
             } break;
         }
+        Game_delete_message(game, msg);
     }
     
     //TODO(omar): this should be moved somewhere else. maybe not part of c->state but c->flags or something
@@ -221,9 +224,9 @@ void player_state_update(struct C_State* c, const struct Game* game)
 
 void dummy_state_update(struct C_State* c, const struct Game* game)
 {
-    int msg = (int)Queue_pop(&(c->messages));
+    struct Message* msg = Queue_pop(&(c->messages));
     if (msg) {
-        switch (msg)
+        switch (msg->id)
         {
             case MESSAGE_DIE:
             {

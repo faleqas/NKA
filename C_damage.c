@@ -9,7 +9,9 @@ void C_Damage_take_damage(struct C_Damage* obj_damage,
     
     if (obj_damage->health <= 0) {
         obj_damage->health = 0;
+
+        struct Message* msg = Game_create_message(game, MESSAGE_DIE, 0, 0);
         Game_send_component_message(game, obj_damage->entity_id,
-                                    MESSAGE_DIE);
+                                    msg);
     }
 }

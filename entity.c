@@ -57,8 +57,6 @@ void E_Dummy_create(struct Game* game, float x, float y)
         s->state_countdown = 0;
         s->next_state = STATE_NONE;
         Queue_init(&(s->messages), 0);
-        
-        Queue_push(&(s->messages), 0xFF);
     }
     
     game->entity_count++;
@@ -112,7 +110,6 @@ int E_Player_create(struct Game* game, float x, float y)
         s->next_state = STATE_NONE;
         s->dir_x = 1;
         Queue_init(&(s->messages), 0);
-        Queue_push(&(s->messages), 0xFF);
         
         C_State_add_state(s, STATE_PLAYER_MOVE_WITH_INPUT);
     }

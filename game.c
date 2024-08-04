@@ -58,9 +58,49 @@ void Game_clear_entity(struct Game* game, int entity_id)
 }
 
 
+struct Message* Game_create_message(struct Game* game, int id, int lvalue, int rvalue)
+{
+    struct Message* msg = game->message_memory + game->message_index;
+    if ((game->message_index >= game->message_memory_max) ||
+        (msg->id != -1)
+        )
+        {
+        for (int i = 0; i < game->message_memory_max; i++) {
+            struct Message* current = game->message_memory + i;
+
+            if (current->id == -1) {
+                msg = current;
+                break;
+            }
+        }
+    }
+
+    if (msg->id != -1) {
+        //message_memory is full
+        return NULL;
+    }
+
+    msg->id = id;
+    msg->lvalue = lvalue;
+    msg->rvalue = rvalue;
+    msg->_index = game->message_index;
+
+    game->message_index++;
+
+    return msg;
+}
+
+
+void Game_delete_message(struct Game* game, struct Message* msg)
+{
+    game->message_index = msg->_index;
+    msg->id = -1;
+}
+
+
 void Game_send_component_message(struct Game* game,
                                  int entity_id,
-                                 const int msg
+                                 const struct Message* msg
                                  )
 {
     if (game->states[entity_id].entity_id == entity_id) {

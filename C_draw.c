@@ -127,13 +127,17 @@ void player_sprite_update(struct C_Draw* c, const struct Game* game)
             if (c->tics_since_frame_change == 1) {
                 //printf("%d\n", c->tics_since_frame_change);
                 //Queue_push(&(state->messages), MESSAGE_MATTACK_DAMAGE_FRAME);
+                struct Message* msg = Game_create_message(game, MESSAGE_MATTACK_DAMAGE_FRAME, 0, 0);
                 Game_send_component_message(game, c->entity_id,
-                                            MESSAGE_MATTACK_DAMAGE_FRAME);
+                                            msg);
             }
         }
     }
     
-    advance_animation(c, anim_p);
+    if (advance_animation(c, anim_p)) {
+        //Game_send_component_message(game, c->entity_id,
+               //MESSAGE_FRAME_ADVANCE);
+    }
     
     c->prev_anim_id = anim;
 }

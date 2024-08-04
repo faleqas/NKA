@@ -24,8 +24,19 @@ enum
 {
     MESSAGE_NONE,
     MESSAGE_MATTACK_DAMAGE_FRAME, //this is the frame where u should do damage in the melee attack
+
+    MESSAGE_FRAME_ADVANCE, //animation
     
     MESSAGE_DIE
+};
+
+struct Message
+{
+    int id;
+    int lvalue;
+    int rvalue;
+
+    int _index; //index in message_memory array
 };
 
 
@@ -61,7 +72,12 @@ struct Game
     
     //debug
     bool draw_collisions;
+
+    struct Message* message_memory;
+    int message_memory_max;
+    int message_index;
 };
+
 
 //returns true if ENTITY_MAX has been reached
 bool Game_is_entities_full(const struct Game* game);
@@ -71,10 +87,14 @@ struct C_Transform* Game_is_colliding(const struct Game* game,
 
 void Game_clear_entity(struct Game* game, int entity_id);
 
+struct Message* Game_create_message(struct Game* game, int id, int lvalue, int rvalue);
+
+void Game_delete_message(struct Game* game, struct Message* msg);
+
 //sends a message to all components of an entity
 void Game_send_component_message(struct Game* game,
                                  int entity_id,
-                                 const int  msg
+                                 const struct Message* msg
                                  );
 
 #endif //GAME_H
