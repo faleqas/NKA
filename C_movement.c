@@ -100,7 +100,15 @@ void C_Movement_update(struct C_Movement* c, struct Game* game)
             if (Game_is_colliding(game, t)) {
                 t->x -= c->velocity_x;
                 c->colliding_x = true;
+                if (c->velocity_x > 0) {
+                    c->last_collision_x = 1;
+                }
+                else {
+                    c->last_collision_x = -1;
+                }
             }
+            
+            //printf("LAST COLLISION: %d\n", c->last_collision_x);
             
             t->y += c->velocity_y;
             if (Game_is_colliding(game, t)) {

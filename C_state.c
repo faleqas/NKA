@@ -59,7 +59,7 @@ void player_state_update(struct C_State* c, const struct Game* game)
             {
                 C_State_add_state(c, STATE_ATTACKING_MELEE_DAMAGE);
             } break;
-
+            
             case MESSAGE_FRAME_ADVANCE:
             {
                 
@@ -92,7 +92,7 @@ void player_state_update(struct C_State* c, const struct Game* game)
     }
     
     C_State_remove_state(c, STATE_PLAYER_DOUBLE_JUMP);
-
+    
     if (m->on_ground) {
         C_State_add_state(c, STATE_PLAYER_CAN_DOUBLE_JUMP);
         C_State_add_state(c, STATE_PLAYER_MOVE_WITH_INPUT);
@@ -107,7 +107,7 @@ void player_state_update(struct C_State* c, const struct Game* game)
     else if (m->velocity_y) {
         C_State_remove_state(c, STATE_PLAYER_JUMP);
         C_State_add_state(c, STATE_PLAYER_AIR);
-
+        
         if (!(game->keys_held[SDL_SCANCODE_SPACE])) {
             space_released_in_jump = true;
         }
@@ -120,14 +120,14 @@ void player_state_update(struct C_State* c, const struct Game* game)
         if (game->keys_held[SDL_SCANCODE_D]) {
             C_State_add_state(c, STATE_PLAYER_MOVE);
             C_State_remove_state(c, STATE_PLAYER_IDLE);
-
+            
             m->dir_x = 1;
             
             if (!(c->state & STATE_ATTACKING_MELEE)) {
                 //can't change attack dir by moving
                 c->dir_x = 1;
             }
-
+            
             if (m->on_wall) {
                 m->velocity_x = 0;
             }
@@ -143,7 +143,7 @@ void player_state_update(struct C_State* c, const struct Game* game)
                 //can't change attack dir by moving
                 c->dir_x = -1;
             }
-
+            
             if (m->on_wall) {
                 m->velocity_x = 0;
             }
@@ -172,9 +172,9 @@ void player_state_update(struct C_State* c, const struct Game* game)
         }
         
         else if (m->on_wall) {
-            m->velocity_x = 2.0f;
+            m->velocity_x = 2.0f * -(m->last_collision_x);
             m->velocity_y = -PLAYER_JUMP_FORCE;
-            m->dir_x = 1;
+            m->dir_x = -(m->last_collision_x);
             c->next_state = c->state | STATE_PLAYER_CAN_DOUBLE_JUMP;
             C_State_remove_state(c, STATE_PLAYER_MOVE_WITH_INPUT);
             C_State_remove_state(c, STATE_PLAYER_IDLE);
@@ -182,7 +182,7 @@ void player_state_update(struct C_State* c, const struct Game* game)
             
             c->state_countdown = 60;
             
-            c->dir_x = 1;
+            c->dir_x = m->dir_x;
         }
         
         else {

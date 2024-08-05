@@ -64,7 +64,7 @@ static void main_loop(struct Game* game)
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_IDLE_0, SPRITE_PLAYER_IDLE_02, 150);
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_IDLE_0, SPRITE_PLAYER_IDLE_03, 150);
     }
-
+    
     { //PLAYER RUN from (1,1) to (5,1)
         SDL_Rect rect = { //size of run sprites
             16, 6, //offset
@@ -98,7 +98,7 @@ static void main_loop(struct Game* game)
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_RUN, SPRITE_PLAYER_RUN_03, 120);
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_RUN, SPRITE_PLAYER_RUN_04, 120);
     }
-
+    
     {
         SDL_Rect rect = { //size of jump sprites
             16, 6, //offset
@@ -152,7 +152,7 @@ static void main_loop(struct Game* game)
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_FIRST_JUMP, SPRITE_PLAYER_JUMP_2, 200);
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_FIRST_JUMP, SPRITE_PLAYER_JUMP_3, 200);
     }
-
+    
     {
         SDL_Rect rect = { //size of falling sprites
             16, 6, //offset
@@ -172,7 +172,7 @@ static void main_loop(struct Game* game)
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_FALLING, SPRITE_PLAYER_FALLING_0, 200);
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_FALLING, SPRITE_PLAYER_FALLING_1, 200);
     }
-
+    
     {
         SDL_Rect rect1 = { //size of idle sword sprites
             50 - 34 - 5, 0, //offset
@@ -239,7 +239,7 @@ static void main_loop(struct Game* game)
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_ATTACK_0, SPRITE_PLAYER_SWORD_ATTACK_0_7, 80);
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_ATTACK_0, SPRITE_PLAYER_SWORD_ATTACK_0_8, 60);
     }
-
+    
     //2 3
     //11
     {
@@ -247,16 +247,16 @@ static void main_loop(struct Game* game)
             14, 6, //offset
             19, 31
         };
-
+        
         AssetManager_load_sprite_from_tilemap(game->asset_m, game, "assets/sprites/adventurer/sheet_edit.png",
-            SPRITE_PLAYER_WALL_SLIDE_0,
-            2, 11,
-            7, 16, &rect);
+                                              SPRITE_PLAYER_WALL_SLIDE_0,
+                                              2, 11,
+                                              7, 16, &rect);
         AssetManager_load_sprite_from_tilemap(game->asset_m, game, "assets/sprites/adventurer/sheet_edit.png",
-            SPRITE_PLAYER_WALL_SLIDE_1,
-            3, 11,
-            7, 16, &rect);
-
+                                              SPRITE_PLAYER_WALL_SLIDE_1,
+                                              3, 11,
+                                              7, 16, &rect);
+        
         AssetManager_create_animation(game->asset_m, ANIM_PLAYER_WALL_SLIDE, true);
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_WALL_SLIDE, SPRITE_PLAYER_WALL_SLIDE_0, 200);
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_WALL_SLIDE, SPRITE_PLAYER_WALL_SLIDE_1, 200);
@@ -287,7 +287,8 @@ static void main_loop(struct Game* game)
     // }
     for (int i = 0; i < SCREEN_HEIGHT- 100; i += TILE_SIZE)
     {
-        E_Block_create(game, (float)0, (float)i);
+        E_Block_create(game, 0, (float)i);
+        E_Block_create(game, 250.0f, (float)i);
     }
     
     int last_ticks = SDL_GetTicks();
@@ -301,7 +302,7 @@ static void main_loop(struct Game* game)
         
         { //clear screen
             SDL_SetRenderDrawColor(game->renderer,
-                                   60, 60, 60, 255);
+                                   10, 10, 200, 255);
             SDL_RenderClear(game->renderer);
         }
         if (s_background) {
@@ -379,9 +380,9 @@ static int handle_events(struct Game* game)
                     } break;
                 }
                 uint8_t scancode = event.key.keysym.scancode;
-
+                
                 game->keys_held[scancode] = 1;
-
+                
                 if (event.key.repeat == 0) {
                     game->keys_just_pressed[scancode] = 1;
                     printf("%d just pressed\n", scancode);
@@ -450,10 +451,10 @@ static struct Game* create_game()
     game->keys_just_pressed = calloc(game->key_count, sizeof(uint8_t));
     game->keys_just_released = calloc(game->key_count, sizeof(uint8_t));
     game->keys_held = calloc(game->key_count, sizeof(uint8_t));
-
+    
     game->message_memory_max = 64;
     game->message_memory = malloc(sizeof(struct Message) * game->message_memory_max);
-
+    
     for (int i = 0; i < game->message_memory_max; i++)
     {
         game->message_memory[i].id = -1;

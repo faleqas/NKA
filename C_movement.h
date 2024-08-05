@@ -23,18 +23,17 @@ struct C_Movement
     float accel; //acceleration
     float decel; //deceleration
     
-    //this should probably be moved to C_State
     int dir_x;
     
-    //TODO(omar): turn these into flags of a single flags variable
-    //unless bitwise operations are slower than operating on native 32 bit variables
-    
+    //TODO(omar): turn these into bitwise flags of a single flags variable
     bool on_ground;
     bool on_wall;
-    
     //true if a collision with either direction occured this tic
     bool colliding_x;
     bool colliding_y;
+    
+    
+    int last_collision_x; //direction of last collision in X axis
 };
 
 
