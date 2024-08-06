@@ -9,6 +9,17 @@
 
 
 
+//TODO(omar): handle edge case where attack->attacks is NULL (no attacks have been added to C_Melee)
+void C_Melee_advance_combo(struct C_Melee* attack)
+{
+    attack->current_attack_index++;
+
+    if (attack->current_attack_index >= attack->attacks_count) {
+        attack->current_attack_index = 0;
+    }
+}
+
+
 void C_Melee_add_attack(struct C_Melee* attack, int x, int y, int w, int h, int anim_id)
 {
     attack->attacks_count++;

@@ -19,6 +19,7 @@ struct C_Melee
     int current_attack_index;
 };
 
+void C_Melee_advance_combo(struct C_Melee* attack);
 
 void C_Melee_add_attack(struct C_Melee* attack, int x, int y, int w, int h, int anim_id);
 

@@ -90,6 +90,11 @@ void player_state_update(struct C_State* c, const struct Game* game)
     if (d->entity_id != c->entity_id) {
         return;
     }
+
+    struct C_Melee* melee = game->melees + c->entity_id;
+    if (melee->entity_id != c->entity_id) {
+        return;
+    }
     
     C_State_remove_state(c, STATE_PLAYER_DOUBLE_JUMP);
     
@@ -195,6 +200,9 @@ void player_state_update(struct C_State* c, const struct Game* game)
         c->state_countdown--;
     }
     else {
+        if (c->state & STATE_ATTACKING_MELEE) {
+            C_Melee_advance_combo(melee);
+        }
         if (c->state & STATE_PLAYER_READY_JUMP) {
             C_State_remove_state(c, STATE_PLAYER_READY_JUMP);
             C_State_add_state(c, STATE_PLAYER_JUMP);
