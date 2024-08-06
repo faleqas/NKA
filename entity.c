@@ -78,7 +78,6 @@ int E_Player_create(struct Game* game, float x, float y)
     t->h = idle_sprite->src.h * 3;
     t->entity_id = id;
     t->collision_type = COLLISION_AABB;
-    
     {
         struct C_Movement* m = game->movements + id;
         m->max_speed = 1.0f;
@@ -116,10 +115,9 @@ int E_Player_create(struct Game* game, float x, float y)
     {
         struct C_Melee* mattack = game->melees + id;
         mattack->entity_id = id;
-        mattack->trans.x = t->w;
-        mattack->trans.y = 0;
-        mattack->trans.w = 46;
-        mattack->trans.h = t->h;
+        mattack->current_attack_index = 0;
+
+        C_Melee_add_attack(mattack, t->w, 0, 46, t->h, ANIM_PLAYER_ATTACK_0);
     }
     game->entity_count++;
     

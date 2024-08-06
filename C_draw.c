@@ -75,6 +75,8 @@ void player_sprite_update(struct C_Draw* c, const struct Game* game)
     const struct C_Transform* trans = game->transforms + c->entity_id;
     const struct C_Movement* move = game->movements + c->entity_id;
     const struct C_State* state = game->states + c->entity_id;
+    const struct C_Melee* melee = game->melees + c->entity_id;
+    
     if (state->entity_id != c->entity_id) {
         //player must have a state component
         util_assert(false, "Player must have a C_State component\n");
@@ -92,7 +94,7 @@ void player_sprite_update(struct C_Draw* c, const struct Game* game)
         anim = ANIM_PLAYER_WALL_SLIDE;
     }
     else if (state->state & STATE_ATTACKING_MELEE) {
-        anim = ANIM_PLAYER_ATTACK_0;
+        anim = melee->attacks[melee->current_attack_index].animation_id;
     }
     else if (state->state & STATE_PLAYER_AIR) {
         if (move->velocity_y < -(PLAYER_JUMP_FORCE * 0.3f)) {

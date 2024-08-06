@@ -288,7 +288,7 @@ static void main_loop(struct Game* game)
     for (int i = 0; i < SCREEN_HEIGHT- 100; i += TILE_SIZE)
     {
         E_Block_create(game, 0, (float)i);
-        E_Block_create(game, 250.0f, (float)i);
+        //E_Block_create(game, 250.0f, (float)i);
     }
     
     int last_ticks = SDL_GetTicks();
@@ -302,7 +302,7 @@ static void main_loop(struct Game* game)
         
         { //clear screen
             SDL_SetRenderDrawColor(game->renderer,
-                                   10, 10, 200, 255);
+                                   90, 90, 90, 255);
             SDL_RenderClear(game->renderer);
         }
         if (s_background) {
@@ -443,8 +443,6 @@ static struct Game* create_game()
     game->e_player_id = -1;
     
     //initialize input state crap
-    
-    
     SDL_GetKeyboardState(&(game->key_count));
     util_assert(game->key_count, "");
     
@@ -474,6 +472,10 @@ static void destroy_game(struct Game* game)
     
     //input state
     free(game->keys_just_pressed);
+    free(game->keys_just_released);
+    free(game->keys_held);
+
+    free(game->message_memory);
     
     free(game);
 }
