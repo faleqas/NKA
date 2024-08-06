@@ -214,8 +214,8 @@ void player_state_update(struct C_State* c, const struct Game* game)
     
     if (game->keys_just_pressed[SDL_SCANCODE_RIGHT]) {
         if (!(c->state & STATE_ATTACKING_MELEE)) {
+            printf("doing attack %d\n", melee->current_attack_index);
             c->dir_x = 1;
-            //C_State_add_state(c, STATE_ATTACKING_MELEE_DAMAGE);
             C_State_add_state(c, STATE_ATTACKING_MELEE);
             player_state_start_attack(c, game);
         }
@@ -223,7 +223,6 @@ void player_state_update(struct C_State* c, const struct Game* game)
     else if (game->keys_just_pressed[SDL_SCANCODE_LEFT]) {
         if (!(c->state & STATE_ATTACKING_MELEE)) {
             c->dir_x = -1;
-            //C_State_add_state(c, STATE_ATTACKING_MELEE_DAMAGE);
             C_State_add_state(c, STATE_ATTACKING_MELEE);
             player_state_start_attack(c, game);
         }

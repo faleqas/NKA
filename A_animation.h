@@ -18,6 +18,7 @@ enum
     ANIM_PLAYER_AIR_JUMP, //in the air second stage (ball)
     ANIM_PLAYER_FALLING,
     ANIM_PLAYER_ATTACK_0,
+    ANIM_PLAYER_ATTACK_1,
     ANIM_PLAYER_WALL_SLIDE
 };
 

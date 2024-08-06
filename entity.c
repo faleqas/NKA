@@ -118,6 +118,7 @@ int E_Player_create(struct Game* game, float x, float y)
         mattack->current_attack_index = 0;
 
         C_Melee_add_attack(mattack, t->w, 0, 46, t->h, ANIM_PLAYER_ATTACK_0);
+        C_Melee_add_attack(mattack, t->w, 0, 64, t->h, ANIM_PLAYER_ATTACK_1);
     }
     game->entity_count++;
     

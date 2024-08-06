@@ -239,6 +239,62 @@ static void main_loop(struct Game* game)
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_ATTACK_0, SPRITE_PLAYER_SWORD_ATTACK_0_7, 80);
         AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_ATTACK_0, SPRITE_PLAYER_SWORD_ATTACK_0_8, 60);
     }
+    {
+        SDL_Rect rect1 = { //size of idle sword sprites
+            50 - 34 - 5, 0, //offset
+            34, 36
+        };
+        
+        SDL_Rect rect2 = { //size of crouch sword sprites
+            50 - 34 - 10, 0, //offset
+            34, 36
+        };
+        
+        SDL_Rect rect3 = { //size of sword attack sprites
+            50 - 43, 0, //offset
+            40, 36
+        };
+        
+        //(5, 6)
+        
+        AssetManager_load_sprite_from_tilemap(game->asset_m, game, "assets/sprites/adventurer/sheet_edit.png",
+                                              SPRITE_PLAYER_SWORD_ATTACK_1_0,
+                                              5, 6,
+                                              7, 16, &rect1);
+                                              
+        AssetManager_load_sprite_from_tilemap(game->asset_m, game, "assets/sprites/adventurer/sheet_edit.png",
+                                              SPRITE_PLAYER_SWORD_ATTACK_1_1,
+                                              6, 6,
+                                              7, 16, &rect1);
+                                              
+        AssetManager_load_sprite_from_tilemap(game->asset_m, game, "assets/sprites/adventurer/sheet_edit.png",
+                                              SPRITE_PLAYER_SWORD_ATTACK_1_2,
+                                              0, 7,
+                                              7, 16, &rect1);
+
+        AssetManager_load_sprite_from_tilemap(game->asset_m, game, "assets/sprites/adventurer/sheet_edit.png",
+                                              SPRITE_PLAYER_SWORD_ATTACK_1_3,
+                                              1, 7,
+                                              7, 16, &rect3);
+
+        AssetManager_load_sprite_from_tilemap(game->asset_m, game, "assets/sprites/adventurer/sheet_edit.png",
+                                              SPRITE_PLAYER_SWORD_ATTACK_1_4,
+                                              2, 7,
+                                              7, 16, &rect3);
+
+        AssetManager_load_sprite_from_tilemap(game->asset_m, game, "assets/sprites/adventurer/sheet_edit.png",
+                                              SPRITE_PLAYER_SWORD_ATTACK_1_5,
+                                              3, 7,
+                                              7, 16, &rect3);
+        
+        AssetManager_create_animation(game->asset_m, ANIM_PLAYER_ATTACK_1, false);
+        AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_ATTACK_1, SPRITE_PLAYER_SWORD_ATTACK_1_0, 50);
+        AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_ATTACK_1, SPRITE_PLAYER_SWORD_ATTACK_1_1, 50);
+        AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_ATTACK_1, SPRITE_PLAYER_SWORD_ATTACK_1_2, 50);
+        AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_ATTACK_1, SPRITE_PLAYER_SWORD_ATTACK_1_3, 100);
+        AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_ATTACK_1, SPRITE_PLAYER_SWORD_ATTACK_1_4, 100);
+        AssetManager_animation_add_sprite(game->asset_m, ANIM_PLAYER_ATTACK_1, SPRITE_PLAYER_SWORD_ATTACK_1_5, 100);
+    }
     
     //2 3
     //11
@@ -385,7 +441,6 @@ static int handle_events(struct Game* game)
                 
                 if (event.key.repeat == 0) {
                     game->keys_just_pressed[scancode] = 1;
-                    printf("%d just pressed\n", scancode);
                 }
                 
             } break;

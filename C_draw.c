@@ -125,7 +125,7 @@ void player_sprite_update(struct C_Draw* c, const struct Game* game)
     struct A_Animation* anim_p = AssetManager_get_animation(game->asset_m, anim);
     
     if (state->state & STATE_ATTACKING_MELEE) {
-        if (c->anim_index == 6) {
+        if (c->anim_index == (anim_p->len / 2)) {
             if (c->tics_since_frame_change == 1) {
                 //printf("%d\n", c->tics_since_frame_change);
                 //Queue_push(&(state->messages), MESSAGE_MATTACK_DAMAGE_FRAME);
