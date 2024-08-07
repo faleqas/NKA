@@ -4,6 +4,7 @@
 #define _C_MELEE_ATTACK_H
 #include "C_transform.h"
 
+#include <stdbool.h>
 
 struct C_Melee_Attack_Data
 {
@@ -17,6 +18,8 @@ struct C_Melee
     struct C_Melee_Attack_Data* attacks;
     int attacks_count;
     int current_attack_index;
+    
+    bool did_damage;
 };
 
 void C_Melee_advance_combo(struct C_Melee* attack);

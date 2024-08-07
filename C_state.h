@@ -40,7 +40,7 @@ struct C_State
 //just calls the state_update function pointer if there is one. only wrote for consistency
 void C_State_update(struct C_State* c, const struct Game* game);
 
-void player_state_update(struct C_State*, const struct Game*);
+void player_state_update(struct C_State*,  const struct Game*);
 
 void dummy_state_update(struct C_State* c, const struct Game* game);
 

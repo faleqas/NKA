@@ -43,14 +43,30 @@ void C_State_go_to_next_state(struct C_State* c)
 }
 
 
-void player_state_start_attack(struct C_State* c, const struct Game* game)
+void player_state_start_attack(struct C_State* c, struct C_Melee* melee, const struct Game* game)
 {
     c->state_countdown = 120;
     c->next_state = (c->state & ~STATE_ATTACKING_MELEE) & ~STATE_ATTACKING_MELEE_DAMAGE;
+    melee->did_damage = false;
 }
 
 void player_state_update(struct C_State* c, const struct Game* game)
 {
+    struct C_Movement* m = game->movements + c->entity_id;
+    if (m->entity_id != c->entity_id) {
+        return;
+    }
+    
+    struct C_Draw* d = game->movements + c->entity_id;
+    if (d->entity_id != c->entity_id) {
+        return;
+    }
+    
+    struct C_Melee* melee = game->melees + c->entity_id;
+    if (melee->entity_id != c->entity_id) {
+        return;
+    }
+    
     struct Message* msg = Queue_pop(&(c->messages));
     if (msg) {
         switch (msg->id)
@@ -58,6 +74,7 @@ void player_state_update(struct C_State* c, const struct Game* game)
             case MESSAGE_MATTACK_DAMAGE_FRAME:
             {
                 C_State_add_state(c, STATE_ATTACKING_MELEE_DAMAGE);
+                melee->did_damage = true;
             } break;
             
             case MESSAGE_FRAME_ADVANCE:
@@ -80,21 +97,6 @@ void player_state_update(struct C_State* c, const struct Game* game)
     
     //TODO(omar): this should be moved somewhere else. maybe not part of c->state but c->flags or something
     static bool space_released_in_jump = false;
-    
-    struct C_Movement* m = game->movements + c->entity_id;
-    if (m->entity_id != c->entity_id) {
-        return;
-    }
-    
-    struct C_Draw* d = game->movements + c->entity_id;
-    if (d->entity_id != c->entity_id) {
-        return;
-    }
-
-    struct C_Melee* melee = game->melees + c->entity_id;
-    if (melee->entity_id != c->entity_id) {
-        return;
-    }
     
     C_State_remove_state(c, STATE_PLAYER_DOUBLE_JUMP);
     
@@ -201,7 +203,8 @@ void player_state_update(struct C_State* c, const struct Game* game)
     }
     else {
         if (c->state & STATE_ATTACKING_MELEE) {
-            C_Melee_advance_combo(melee);
+            melee->did_damage = false;
+            melee->current_attack_index = 0;
         }
         if (c->state & STATE_PLAYER_READY_JUMP) {
             C_State_remove_state(c, STATE_PLAYER_READY_JUMP);
@@ -214,19 +217,33 @@ void player_state_update(struct C_State* c, const struct Game* game)
     
     if (game->keys_just_pressed[SDL_SCANCODE_RIGHT]) {
         if (!(c->state & STATE_ATTACKING_MELEE)) {
-            printf("doing attack %d\n", melee->current_attack_index);
+            //printf("doing attack %d\n", melee->current_attack_index);
             c->dir_x = 1;
             C_State_add_state(c, STATE_ATTACKING_MELEE);
-            player_state_start_attack(c, game);
+            player_state_start_attack(c, melee, game);
+        }
+        else if (melee->did_damage) {
+            c->dir_x = 1;
+            player_state_start_attack(c, melee, game);
+            C_Melee_advance_combo(melee);
+        }
+        else {
+            printf("didn't do damage yet\n");
         }
     }
     else if (game->keys_just_pressed[SDL_SCANCODE_LEFT]) {
         if (!(c->state & STATE_ATTACKING_MELEE)) {
             c->dir_x = -1;
             C_State_add_state(c, STATE_ATTACKING_MELEE);
-            player_state_start_attack(c, game);
+            player_state_start_attack(c, melee, game);
+        }
+        else if (melee->did_damage) {
+            c->dir_x = -1;
+            player_state_start_attack(c, melee, game);
+            C_Melee_advance_combo(melee);
         }
     }
+    //printf("%d\n", melee->did_damage);
 }
 
 void dummy_state_update(struct C_State* c, const struct Game* game)
