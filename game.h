@@ -4,6 +4,7 @@
 #define GAME_H
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_gpu.h>
 #include "entity.h"
 #include "component.h"
 #include <stdbool.h>
@@ -43,9 +44,8 @@ struct Message
 struct Game
 {
     int tics;
-    
-    SDL_Window* window;
-    SDL_Renderer* renderer;
+
+    GPU_Target* window_target;
     
     struct Camera camera;
     

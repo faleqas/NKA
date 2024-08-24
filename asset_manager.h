@@ -5,6 +5,7 @@
 #include "game.h"
 #include "A_animation.h"
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_gpu.h>
 
 //for now we have a MAX_ number of each asset type so that we don't have to dynamically reallocate everytime we add an asset. if we need to do that in the future we can reallocate by big chunks to improve performance
 #define MAX_SPRITES 100
@@ -71,8 +72,8 @@ const enum
 struct A_Sprite
 {
     int id;
-    SDL_Texture* texture;
-    SDL_Rect src;
+    GPU_Image* texture;
+    GPU_Rect src;
 };
 
 struct AssetManager

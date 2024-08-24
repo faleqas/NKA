@@ -47,7 +47,7 @@ void E_Dummy_create(struct Game* game, float x, float y)
     {
         struct C_Damage* d = game->damages + id;
         d->entity_id = id;
-        d->health = 1;
+        d->health = 2;
     }
     {
         struct C_State* s = game->states + id;
@@ -116,7 +116,7 @@ int E_Player_create(struct Game* game, float x, float y)
         struct C_Melee* mattack = game->melees + id;
         mattack->entity_id = id;
         mattack->current_attack_index = 0;
-
+        
         C_Melee_add_attack(mattack, t->w, 0, 46, t->h, ANIM_PLAYER_ATTACK_0);
         C_Melee_add_attack(mattack, t->w, 0, 64, t->h, ANIM_PLAYER_ATTACK_1);
     }

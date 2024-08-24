@@ -1,13 +1,14 @@
 #include "asset_manager.h"
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_gpu.h>
 #include "game.h"
 #include "util.h"
 #include <stdio.h>
 #include <memory.h>
 
 //used internally only
-static int AssetManager_load_sprite_from_texture(struct AssetManager* m, const struct Game* game,
-                                                 int id, SDL_Texture* texture, const SDL_Rect* src);
+static int _AssetManager_load_sprite(struct AssetManager* m, const struct Game* game,
+                                                 int id, GPU_Image* texture, const SDL_Rect* src);
 
 struct AssetManager* AssetManager_create()
 {
@@ -69,8 +70,8 @@ struct A_Animation* AssetManager_get_animation(const struct AssetManager* m, int
 }
 
 
-static int AssetManager_load_sprite_from_texture(struct AssetManager* m, const struct Game* game,
-                                                 int id, SDL_Texture* texture, const SDL_Rect* src)
+static int _AssetManager_load_sprite(struct AssetManager* m, const struct Game* game,
+                                                 int id, GPU_Image* texture, SDL_Surface* surface, const SDL_Rect* src)
 {
     for (int i = 0; i < MAX_SPRITES; i++)
     {
@@ -80,17 +81,22 @@ static int AssetManager_load_sprite_from_texture(struct AssetManager* m, const s
             m->sprites[i].texture = texture;
             
             if (src) {
-                SDL_Rect* dst_src = &(m->sprites[i].src);
-                memcpy(dst_src, src, sizeof(SDL_Rect));
+                GPU_Rect* dst = &(m->sprites[i].src);
+                dst->x = (float)src->x;
+                dst->y = (float)src->y;
+                dst->w = (float)src->w;
+                dst->h = (float)src->h;
             }
             else {      
                 m->sprites[i].src.x = 0;
                 m->sprites[i].src.y = 0;
                 
-                int* w = &(m->sprites[i].src.w);
-                int* h = &(m->sprites[i].src.h);
-                SDL_QueryTexture(texture, NULL, NULL,
-                                 w, h);
+                int w;
+                int h;
+                //SDL_QueryTexture(texture, NULL, NULL,
+                //                 w, h
+                m->sprites[i].src.w = (float)texture->w;
+                m->sprites[i].src.h = (float)texture->h;
             }
             return 0;
         }
@@ -103,10 +109,12 @@ static int AssetManager_load_sprite_from_texture(struct AssetManager* m, const s
 int AssetManager_load_sprite(struct AssetManager* m, const struct Game* game, const char* path,
                              int id, const SDL_Rect* src)
 {
-    SDL_Texture* texture = IMG_LoadTexture(game->renderer, path);
+    SDL_Surface* surface = IMG_Load(path);
+    util_assert(surface != NULL, "A_Sprite: Loading sprite failed. Path is probably invalid\n");
+    GPU_Image* texture = GPU_CopyImageFromSurface(surface);
     util_assert(texture != NULL, "A_Sprite: Loading sprite failed. Path is probably invalid\n");
     
-    return AssetManager_load_sprite_from_texture(m, game, id, texture, src);
+    return _AssetManager_load_sprite(m, game, id, texture, surface, src);
 }
 
 //TODO(omar): a great optimization would be loading all needed tilemaps into memory and then making their sprites
@@ -123,9 +131,8 @@ int AssetManager_load_sprite_from_tilemap(struct AssetManager* m, const struct G
                                           const SDL_Rect* src)
 {
     SDL_Surface* surf = IMG_Load(path);
-    if (!surf) {
-        return -2;
-    }
+    util_assert(surf != NULL, "A_Sprite: Loading sprite failed. Path is probably invalid\n");
+  
     
     int tile_width = surf->w / tile_count_x;
     int tile_height = surf->h / tile_count_y;
@@ -149,9 +156,10 @@ int AssetManager_load_sprite_from_tilemap(struct AssetManager* m, const struct G
     int code = SDL_BlitSurface(surf, &src_r, tile_surf, &dst_r);
     
     if (code == 0) {
-        SDL_Texture* tile_tex = SDL_CreateTextureFromSurface(game->renderer, tile_surf);
+        GPU_Image* tile_tex = GPU_CopyImageFromSurface(tile_surf);
+        util_assert(tile_tex != NULL, "A_Sprite: Loading sprite failed. Path is probably invalid\n");
         if (tile_tex) {
-            return AssetManager_load_sprite_from_texture(m, game, id, tile_tex, src);
+            return _AssetManager_load_sprite(m, game, id, tile_tex, tile_surf, src);
         }
     }
     SDL_FreeSurface(surf);

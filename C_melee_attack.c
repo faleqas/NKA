@@ -82,8 +82,8 @@ void C_Melee_update(struct C_Melee* attack, struct Game* game)
     };
     
     if (game->draw_collisions) {
-        SDL_SetRenderDrawColor(game->renderer, 255, 255, 0, 255);
-        SDL_RenderDrawRect(game->renderer, &r);
+        //SDL_SetRenderDrawColor(game->renderer, 255, 255, 0, 255);
+        //SDL_RenderDrawRect(game->renderer, &r);
     }
     
     

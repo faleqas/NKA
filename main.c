@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_gpu.h>
 #include <util.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -357,16 +358,11 @@ static void main_loop(struct Game* game)
         last_ticks = SDL_GetTicks();
         
         { //clear screen
-            SDL_SetRenderDrawColor(game->renderer,
-                                   90, 90, 90, 255);
-            SDL_RenderClear(game->renderer);
-        }
-        if (s_background) {
-            SDL_Rect dst = {0, -120, SCREEN_WIDTH + 120, SCREEN_HEIGHT + 120};
-            SDL_RenderCopyEx(game->renderer, s_background->texture,
-                             &(s_background->src), &dst,
-                             0, NULL,
-                             SDL_FLIP_NONE);
+            //SDL_SetRenderDrawColor(game->renderer,
+                                   //90, 90, 90, 255);
+            //SDL_RenderClear(game->renderer);
+
+            GPU_Clear(game->window_target);
         }
         
         if (handle_events(game)) {
@@ -404,7 +400,9 @@ static void main_loop(struct Game* game)
             }
         }
         
-        SDL_RenderPresent(game->renderer);
+
+        GPU_Flip(game->window_target);
+        SDL_Delay(16);
         
         game->tics++;
     }
@@ -463,23 +461,24 @@ static struct Game* create_game()
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
     IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
     
-    SDL_Window* window = SDL_CreateWindow("NKA",
-                                          SDL_WINDOWPOS_UNDEFINED,
-                                          SDL_WINDOWPOS_UNDEFINED,
-                                          SCREEN_WIDTH, SCREEN_HEIGHT,
-                                          0);
-    util_assert(window != NULL, "SDL_Window creation failed\n");
+    //SDL_Window* window = SDL_CreateWindow("NKA",
+    //                                      SDL_WINDOWPOS_UNDEFINED,
+    //                                      SDL_WINDOWPOS_UNDEFINED,
+    //                                      SCREEN_WIDTH, SCREEN_HEIGHT,
+    //                                      0);
+    //util_assert(window != NULL, "SDL_Window creation failed\n");
+
     
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, 0,
-                                                SDL_RENDERER_ACCELERATED);
+    //SDL_Renderer* renderer = SDL_CreateRenderer(window, 0,
+    //                                            SDL_RENDERER_ACCELERATED);
     
     struct Game* game = calloc(1, sizeof(struct Game));
     util_assert(game != NULL, ""); //never happens but keep compiler happy
-    game->renderer = renderer;
-    game->window = window;
     game->entity_count = 0;
     game->draw_collisions = false;
-    
+
+    game->window_target = GPU_Init(SCREEN_WIDTH, SCREEN_HEIGHT, GPU_DEFAULT_INIT_FLAGS);
+
     //components
     for (int i = 0; i < ENTITY_MAX; i++)
     {
@@ -521,7 +520,6 @@ static void destroy_game(struct Game* game)
 {
     util_assert(game != NULL, "");
     IMG_Quit();
-    SDL_DestroyWindow(game->window);
     SDL_Quit();
     AssetManager_destroy(game->asset_m);
     

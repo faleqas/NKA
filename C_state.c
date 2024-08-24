@@ -227,9 +227,6 @@ void player_state_update(struct C_State* c, const struct Game* game)
             player_state_start_attack(c, melee, game);
             C_Melee_advance_combo(melee);
         }
-        else {
-            printf("didn't do damage yet\n");
-        }
     }
     else if (game->keys_just_pressed[SDL_SCANCODE_LEFT]) {
         if (!(c->state & STATE_ATTACKING_MELEE)) {
